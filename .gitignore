@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 .vscode
 data
 
@@ -7,6 +8,8 @@ data
 
 =======
 >>>>>>> Initial commit
+=======
+>>>>>>> b08cf67becd3a6583f69679084c7411fc44ff75f
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -167,7 +170,11 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 <<<<<<< HEAD
+<<<<<<< HEAD
 #.idea/
 =======
 #.idea/
 >>>>>>> Initial commit
+=======
+#.idea/
+>>>>>>> b08cf67becd3a6583f69679084c7411fc44ff75f
