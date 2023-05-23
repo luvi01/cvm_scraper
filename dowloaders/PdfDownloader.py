@@ -1,5 +1,7 @@
 import asyncio
 import aiohttp
+import os
+from urllib.parse import urlparse, parse_qs
 
 
 class PdfDownloader:
@@ -7,7 +9,10 @@ class PdfDownloader:
         self.files = []
 
     async def download_pdf_file(self, session, url):
-        local_filename = url.split('/')[-1]
+        parsed_url = urlparse(url)
+        params = parse_qs(parsed_url.query)
+        local_filename = f"{params['CodigoInstituicao'][0]}_{params['numProtocolo'][0]}_{params['numSequencia'][0]}_{params['numVersao'][0]}.pdf"
+        local_filename = os.path.join(os.getcwd(), local_filename)
         async with session.get(url) as response:
             with open(local_filename, 'wb') as f:
                 while True:
