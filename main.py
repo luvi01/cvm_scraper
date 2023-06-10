@@ -25,7 +25,7 @@ def generate_urls_for_years(years, base_url="https://dados.cvm.gov.br/dados/CIA_
 
 
 async def main():
-    urls = generate_urls_for_years(range(2010, 2022))
+    urls = generate_urls_for_years(range(2019, 2022))
 
     csvdowloader = CsvDownloader(urls)
 
@@ -33,7 +33,7 @@ async def main():
 
     files_df = await csvdowloader.download_and_read_multiple_zip_csv()
 
-    company_name = "AMBEV S.A."
+    company_name = "VALE S.A."
 
     pdfs = await pdfdownloader.get_company_pdfs(files_df, company_name)
 

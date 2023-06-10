@@ -14,10 +14,24 @@ class MonthParser:
 
         # Extract Saldo Final
         saldo_final = re.findall(r'Saldo Final(.*?)(FORMULÁRIO CONSOLIDADO|$)', text, re.DOTALL)
-
         saldo_final = [t[0] for t in saldo_final]
+        
+        # Extract Member
+        members = re.findall(r'Grupo e Pessoas\s*(.*?)Ligadas', text, re.DOTALL)
 
-        return saldo_inicial, saldo_final
+        member = []
+        for m in members:
+            match = re.search(r'\( X \)(.*?)(\( |$)', m, re.DOTALL)
+            if match is not None:
+                member.append(match.group(1).strip())
+            else:
+                member.append(None)
+        
+        # Special case for 'Diretoria'
+        if "( X )\nGrupo e Pessoas" in text:
+            member = ["Diretoria" if m is None else m for m in member]
+
+        return saldo_inicial, saldo_final, member
 
     def extract_info(self, text):
         # Extract the class and quantity
@@ -31,7 +45,7 @@ class MonthParser:
     def create_df(self, saldo_inicial_list, saldo_final_list, members, date, url):
         df_final = pd.DataFrame(columns=["Class", "Initial Qty", "Final Qty", "Net Qty", "Member", "Date"])   
 
-        for saldo_inicial, saldo_final, member in zip(saldo_final_list, saldo_inicial_list, members): 
+        for saldo_inicial, saldo_final, member in zip(saldo_inicial_list, saldo_final_list, members): 
             saldo_inicial = pd.DataFrame(saldo_inicial, columns=["Class", "Initial Qty"])
             saldo_final = pd.DataFrame(saldo_final, columns=["Class", "Final Qty"])
 
@@ -41,6 +55,9 @@ class MonthParser:
             df["Date"] = date
             df["URL"] = url
 
+            if date == "2020-02-01":
+                print("Empty")
+
             df_final = pd.concat([df_final, df])
         
         return df_final
@@ -49,13 +66,15 @@ class MonthParser:
         dataframes = []
 
         for file, date, url in self.files:
+            if date == "2020-02-01":
+                print("Empty")
             with pdfplumber.open(file) as pdf:
                 pages = pdf.pages
                 text = ""
                 for page in pages:
                     text += page.extract_text()
 
-            saldo_inicial_text_list, saldo_final_text_list = self.extract_parts(text)
+            saldo_inicial_text_list, saldo_final_text_list, members = self.extract_parts(text)
 
             saldo_inicial_list = []
             saldo_final_list = []
@@ -63,8 +82,6 @@ class MonthParser:
             for saldo_inicial_text, saldo_final_text in zip(saldo_inicial_text_list, saldo_final_text_list):
                 saldo_inicial_list.append(self.extract_info(saldo_inicial_text))
                 saldo_final_list.append(self.extract_info(saldo_final_text))
-
-            members = ["Conselho Administração", "Diretoria", "Conselho Fiscal"]
 
             month_operations_df = self.create_df(saldo_inicial_list,
                                                  saldo_final_list,
